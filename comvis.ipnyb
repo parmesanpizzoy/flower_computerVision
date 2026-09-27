@@ -1,0 +1,85 @@
+from google.colab import files
+import cv2
+import numpy as np
+from matplotlib import pyplot as plt
+
+print("Silakan upload file gambar (contoh: flowers.jpg) dari perangkatmu:")
+uploaded = files.upload()
+
+image_filename = list(uploaded.keys())[0]
+print(f"Berhasil mengupload: {image_filename}")
+
+print("\n--- 1. Python Basic Review ---")
+languages = ['C++', 'Python', 'R']
+my_list = [1, ['red', 'green', 'blue'], (10, 77), 'Yes']
+print("List awal:", my_list)
+
+a = np.array([1, 2, 3])
+b = np.array([[1, 2], [3, 4]])
+print("NumPy Array b:\n", b)
+
+print("\n--- 2. Load Original Image ---")
+img = cv2.imread(image_filename)
+
+plt.figure(figsize=(6, 6))
+plt.imshow(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
+plt.title("Original Image (Clean)")
+plt.axis('off')
+plt.show()
+
+print("\n--- 3. Histogram Equalization ---")
+gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+equ = cv2.equalizeHist(gray)
+
+h, w = gray.shape
+gray_counter = np.zeros(256, dtype=int)
+equ_counter = np.zeros(256, dtype=int)
+
+for i in range(h):
+    for j in range(w):
+        gray_counter[gray[i][j]] += 1
+        equ_counter[equ[i][j]] += 1
+
+plt.figure(figsize=(14, 5))
+plt.subplot(1, 2, 1)
+plt.plot(gray_counter, 'g')
+plt.title('Histogram Before Equalization')
+
+plt.subplot(1, 2, 2)
+plt.plot(equ_counter, 'b')
+plt.title('Histogram After Equalization')
+plt.show()
+
+print("\n--- 4. Thresholding Techniques ---")
+_, bin_thresh = cv2.threshold(gray, 100, 255, cv2.THRESH_BINARY)
+_, inv_bin_thresh = cv2.threshold(gray, 100, 255, cv2.THRESH_BINARY_INV)
+_, otsu_thresh = cv2.threshold(gray, 100, 255, cv2.THRESH_OTSU)
+
+thresh_images = [gray, bin_thresh, inv_bin_thresh, otsu_thresh]
+thresh_titles = ['Grayscale', 'Binary', 'Binary Inv', 'Otsu']
+
+plt.figure(figsize=(10, 8))
+for i in range(4):
+    plt.subplot(2, 2, i + 1)
+    plt.imshow(thresh_images[i], cmap='gray')
+    plt.title(thresh_titles[i])
+    plt.axis('off')
+plt.show()
+
+print("\n--- 5. Image Filtering & Blurring ---")
+averaging = cv2.blur(img, (11, 11))
+gaussian_blur = cv2.GaussianBlur(img, (11, 11), 5.0)
+median_blur = cv2.medianBlur(img, 11)
+bilateral_filter = cv2.bilateralFilter(img, 5, 150, 150)
+
+filters = [img, averaging, gaussian_blur, median_blur, bilateral_filter]
+filter_titles = ['Original', 'Averaging', 'Gaussian', 'Median', 'Bilateral']
+
+plt.figure(figsize=(12, 8))
+for i in range(5):
+    plt.subplot(2, 3, i + 1)
+    plt.imshow(cv2.cvtColor(filters[i], cv2.COLOR_BGR2RGB))
+    plt.title(filter_titles[i])
+    plt.axis('off')
+plt.show()
+print("Selesai! Semua proses berjalan dengan baik.")
